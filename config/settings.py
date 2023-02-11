@@ -44,7 +44,7 @@ HERA_GENERAL_URL = env.get('HERA_GENERAL_URL') or ""
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'ubuntu@gambia.bluesquare.org', '172.31.39.224', '172.20.0.1', '172.17.0.1']
 
 
 # Application definition
