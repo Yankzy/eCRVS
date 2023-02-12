@@ -51,7 +51,6 @@ class HeraAdapter(APIAdapter):
         
 
     def __access_token(self):
-        print('getting access token')
         # make it thread safe
         with self.lock:
             try:
@@ -76,7 +75,7 @@ class HeraAdapter(APIAdapter):
                 
                 response = requests.post(url, headers=headers, data=data)
                 if response.status_code != 200:
-                    raise GraphQLError("Error: ", response.status_code)
+                    raise GraphQLError(f"Error: {response.status_code}")
                 
                 token = response.json()
                 print(token)
