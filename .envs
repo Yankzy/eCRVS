@@ -1,0 +1,42 @@
+# PostgreSQL Container
+# ------------------------------------------------------------------------------
+POSTGRES_HOST=postgresContainer
+POSTGRES_PORT=5432
+POSTGRES_DB=postgres
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=yyyy
+
+
+# PostgreSQL Database
+# ------------------------------------------------------------------------------
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_DB=eCRVS
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=yyyy
+
+# General
+# ------------------------------------------------------------------------------
+DJANGO_READ_DOT_ENV_FILE=True
+SECRET_KEY=fYPjLPOAKJ4jp43HwBt88i7UG9YBWVyVqDgJBSqgLMviV8AK1ET1VblL81OqphwR
+DJANGO_ADMIN_URL=J9reypuMgnim1KkBDBGJPaYmQGNHVQwn/
+DJANGO_ADMIN_NAME=Yankz
+DJANGO_ADMIN_EMAIL=qubzen@gmail.com
+DJANGO_ALLOWED_HOSTS=localhost,0.0.0.0,127.0.0.1
+DJANGO_DEBUG=1
+
+
+# django-allauth
+# ------------------------------------------------------------------------------
+DJANGO_ACCOUNT_ALLOW_REGISTRATION=True
+
+# Gunicorn
+# ------------------------------------------------------------------------------
+WEB_CONCURRENCY=4
+
+# Hera
+# ------------------------------------------------------------------------------
+HERA_CLIENT_SECRET=DYdFBrNP0PsD5Z6Ng8lUMddAGbvOv5ow
+HERA_TOKEN_URL=https://keycloak.lao-dev01.wcc-hera.com/realms/Hera/protocol/openid-connect/token
+HERA_SUBSCRIBE_URL=https://gateway.lao-dev01.wcc-hera.com/v1/subscriptions?topic=LifeEventTopic&address=http://3.122.105.105:8085/ecrvs-notification&protocol=http&policy=ertert
+HERA_GENERAL_URL=https://gateway.lao-dev01.wcc-hera.com/v1
