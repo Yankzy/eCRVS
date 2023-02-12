@@ -79,8 +79,9 @@ class HeraAdapter(APIAdapter):
                     raise GraphQLError("Error: ", response.status_code)
                 
                 token = response.json()
-                expiry_time = NOW + timezone.timedelta(seconds=token['expires_in'])
-                token['expiry_time'] = expiry_time.strftime('%Y-%m-%d %H:%M:%S.%f')
+                print(token)
+                # expiry_time = NOW + timezone.timedelta(seconds=token['expires_in'])
+                # token['expiry_time'] = expiry_time.strftime('%Y-%m-%d %H:%M:%S.%f')
 
                 # write the access token to a file
                 # with open("access_token.json", "w") as file:
@@ -234,3 +235,4 @@ class AnotherAdapter(APIAdapter):
 
 # ssh -L 8080:https://keycloak.lao-dev01.wcc-hera.com:80 ubuntu@gambia.bluesquare.org 
 
+# scp -r .env ubuntu@gambia.bluesquare.org:/home/ubuntu/eCRVS
