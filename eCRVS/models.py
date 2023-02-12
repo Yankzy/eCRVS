@@ -39,6 +39,7 @@ class Citizen(AbstractUser):
     uin = models.CharField(max_length=250, blank=True, null=True)
     nin = models.CharField(max_length=250, blank=True, null=True, unique=True)
     dob = models.CharField(max_length=250, blank=True, null=True)
+    certificate_number = models.CharField(max_length=250, blank=True, null=True)
     activities = GenericRelation(Activity, related_query_name='activities')
 
     objects = CitizenManager()

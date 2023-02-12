@@ -1,75 +1,37 @@
 from celery import shared_task
-from .adapters import HeraAdapter
-from dataclasses import dataclass
-from typing import Dict, Any
-from celery.result import AsyncResult
 
 
-@shared_task(bind=True, max_retries=5)
-def get_from_api(self, **kwargs):
-    try:
-        adapter = globals().get(kwargs.pop('adapter'))
-        return adapter(**kwargs).get_data()
-    except Exception as exc: 
-        # Schedule a retry of the task in 10 seconds
-        raise self.retry(exc=exc, countdown=10) from exc
+def camel_to_snake(camel_string):
+    snake = []
+    for i, char in enumerate(camel_string):
+        if char.isupper():
+            if i != 0:
+                snake.append("_")
+            snake.append(char.lower())
+        else:
+            snake.append(char)
+    return "".join(snake)
 
 
-@dataclass
-class HeraLifeEventTopicHandler:
+@shared_task(bind=True, max_retries=1)
+def hera_life_event_handler(self, nin, context):
+    from .adapters import HeraAdapter
     from .views import CitizenManager
-    nin: str
-    context: str
-    data: Dict[str, str] = None
     
-
-    def handle_event(self):
-        crud = {
-            "CREATE": self.handle_create,
-            "UPDATE": self.handle_update,
-            "DELETE": self.handle_delete,
-        }
-        for key, value in crud.items():
-            if key in self.context:
-                value()
-                break
-
-    def handle_create(self):
-        result = get_from_api.apply_async(
-            kwargs={
-                'adapter': 'HeraAdapter',
-                'nin': self.nin,
-                'operation': 'get_one_person_info',
-                'callback': 'create_citizen'
-            },
-            task_id='handle_create'
-        )
-        async_result = AsyncResult(result.id)
-        if async_result.successful():
-            print(async_result.get())
-
-    def handle_update(self):
-        result = get_from_api.apply_async(
-            kwargs={
-                'adapter': 'HeraAdapter',
-                'nin': self.nin,
-                'operation': 'get_one_person_info',
-            },
-            task_id='handle_update'
-        )
-        async_result = AsyncResult(result.id)
-        if async_result.successful():
-            print(async_result.get())
-
-    def handle_delete(self):
-        result = get_from_api.apply_async(
-            kwargs={
-                'adapter': 'HeraAdapter',
-                'nin': self.nin,
-                'operation': 'get_one_person_info',
-            },
-            task_id='handle_delete'
-        )
-        async_result = AsyncResult(result.id)
-        if async_result.successful():
-            print(async_result.get())
+    try:
+        if response := HeraAdapter(nin=nin, operation='get_one_person_info').get_data():
+            crud = {
+                "CREATE": 'create_citizen',
+                "UPDATE": 'update_citizen',
+                "DELETE": 'delete_citizen',
+            }
+            for key, value in crud.items():
+                if key in context:
+                    citizen_manager_method = getattr(CitizenManager(), value)
+                    snake_case_data = {camel_to_snake(key): value for key, value in response.items()}
+                    citizen_manager_method(**snake_case_data)
+                    break
+    except Exception as exc:
+        # Schedule a retry of the task in 10 seconds
+        raise self.retry(exc=exc, countdown=1) from exc
+        

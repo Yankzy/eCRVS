@@ -22,17 +22,13 @@ class APIAdapter:
 
 @dataclass
 class HeraAdapter(APIAdapter):
-    from .views import CitizenManager
+    
     operation: str
-    url: str = None
     nin: str = None
     uin: str = None
     uuid: str = None
-    callback: str = None
-    headers: Dict[str, str] = None
-    data: Dict[str, str] = None
     lock = threading.Lock()
-    manager = CitizenManager()
+    
 
     def get_data(self):
         methods = {
@@ -51,30 +47,31 @@ class HeraAdapter(APIAdapter):
             "delete_topic": self.__delete_topic,
             "publish_topic": self.__publish_topic,
         }
-        methods[self.operation]()
+        return methods[self.operation]()
         
 
     def __access_token(self):
+        print('getting access token')
         # make it thread safe
         with self.lock:
             try:
-                url = settings.HERA_TOKEN_URL
+                url = "http://localhost:8080/realms/Hera/protocol/openid-connect/token"
                 headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-                data = {'client_id': 'hera-m2m','client_secret': settings.HERA_CLIENT_SECRET, 'grant_type': 'client_credentials'}
+                data = {'client_id': 'hera-m2m','client_secret': 'DYdFBrNP0PsD5Z6Ng8lUMddAGbvOv5ow', 'grant_type': 'client_credentials'}
+
+                # read the access token from a file
+                # with open("access_token.json", "r") as file:
+                #     TOKEN = json.load(file)
+
 
                 # check if token is valid
-                # read the access token from a file
-                with open("access_token.json", "r") as file:
-                    TOKEN = json.load(file)
-
-
                 NOW = timezone.now()
-                if ( 
-                    TOKEN 
-                    and TOKEN.get('expiry_time', None) is not None
-                    and datetime.strptime(TOKEN['expiry_time'], '%Y-%m-%d %H:%M:%S.%f') > NOW
-                ):
-                    return TOKEN['access_token']
+                # if ( 
+                #     TOKEN 
+                #     and TOKEN.get('expiry_time', None) is not None
+                #     and datetime.strptime(TOKEN['expiry_time'], '%Y-%m-%d %H:%M:%S.%f') > NOW
+                # ):
+                #     return TOKEN['access_token']
 
                 
                 response = requests.post(url, headers=headers, data=data)
@@ -86,36 +83,38 @@ class HeraAdapter(APIAdapter):
                 token['expiry_time'] = expiry_time.strftime('%Y-%m-%d %H:%M:%S.%f')
 
                 # write the access token to a file
-                with open("access_token.json", "w") as file:
-                    json.dump(token, file)
+                # with open("access_token.json", "w") as file:
+                #     json.dump(token, file)
 
-                return token['access_token']
+                return token
             except Exception as e:
-                return None
+                import traceback
+                traceback.print_exc()
+                return e
 
 
     def __get_one_person(self):
-        if access_token := self.__access_token():
-            url = f"{settings.HERA_GENERAL_URL}/persons/{self.nin}"
-            querystring = {"attributeNames": ["firstName", "lastName", "dob", "placeOfBirth", "certificateNumber"]}
-            headers = {"Authorization": f"Bearer {access_token}"}
-            response = requests.get(url, headers=headers, params=querystring)
-            return response.json()
-        raise GraphQLError("Problem getting access token")
-        # getattr(self.manager, self.callback)(**{
-        #     "topicName": "LifeEventTopic",
-        #     "businessIdentifier": "BR0000000037",
-        #     "context": "BIRTH_REGISTRATION_CREATED",
-        #     "eventDateTime": "2022-11-21T15:15:55.246067",
-        #     "nin": "150854792341",
-        #     "uin": "8888888888888",
-        #     "firstName": "John",
-        #     "lastName": "Doe",
-        #     "dob": "1990-11-21",
-        #     "placeOfBirth": "Kampala",
-        #     "certificateNumber": "123456789",
-        # })
-        # raise GraphQLError("Problem getting access token")
+        # if access_token := self.__access_token():
+        #     url = f"{settings.HERA_GENERAL_URL}/persons/{self.nin}"
+        #     querystring = {"attributeNames": ["firstName", "lastName", "dob", "placeOfBirth", "certificateNumber"]}
+        #     headers = {"Authorization": f"Bearer {access_token}"}
+        #     response = requests.get(url, headers=headers, params=querystring)
+        #     return response.json()
+        # return None
+        # getattr(self.manager, self.callback)
+        return {
+            "topicName": "LifeEventTopic",
+            "businessIdentifier": "BR0000000037",
+            "context": "BIRTH_REGISTRATION_CREATED",
+            "eventDateTime": "2022-11-21T15:15:55.246067",
+            "nin": "9999999999",
+            "uin": "8888888888888",
+            "firstName": "John",
+            "lastName": "Doe",
+            "dob": "1990-11-21",
+            "placeOfBirth": "Kampala",
+            "certificateNumber": "123456789",
+        }
 
     
 
@@ -126,7 +125,7 @@ class HeraAdapter(APIAdapter):
             headers = {"Authorization": f"Bearer {access_token}"}
             response = requests.get(url, headers=headers, params=querystring)
             return response.json()
-        raise GraphQLError("Problem getting access token")
+        return None
 
     def __verify(self):
         if access_token := self.__access_token():
@@ -134,7 +133,7 @@ class HeraAdapter(APIAdapter):
             headers = {"Authorization": f"Bearer {access_token}"}
             response = requests.post(url, headers=headers)
             return response.json()
-        raise GraphQLError("Problem getting access token")
+        return None
 
 
     def __match(self):
@@ -143,7 +142,7 @@ class HeraAdapter(APIAdapter):
             headers = {"Authorization": f"Bearer {access_token}"}
             response = requests.post(url, headers=headers)
             return response.json()
-        raise GraphQLError("Problem getting access token")
+        return None
 
 
     def __document(self):
@@ -152,7 +151,7 @@ class HeraAdapter(APIAdapter):
             headers = {"Authorization": f"Bearer {access_token}"}
             response = requests.get(url, headers=headers)
             return response.json()
-        raise GraphQLError("Problem getting access token")
+        return None
 
 
     def __subscribe_to_life_event(self):
@@ -161,7 +160,7 @@ class HeraAdapter(APIAdapter):
             headers = {"Authorization": f"Bearer {access_token}"}
             response = requests.post(url, headers=headers)
             return response.json()
-        raise GraphQLError("Problem getting access token")
+        return None
 
 
     def __get_subscriptions(self):
@@ -170,7 +169,7 @@ class HeraAdapter(APIAdapter):
             headers = {"Authorization": f"Bearer {access_token}"}
             response = requests.get(url, headers=headers)
             return response.json()
-        raise GraphQLError("Problem getting access token")
+        return None
     
 
     def __confirm_subscription(self):
@@ -179,7 +178,7 @@ class HeraAdapter(APIAdapter):
             headers = {"Authorization": f"Bearer {access_token}"}
             response = requests.get(url, headers=headers)
             return response.json()
-        raise GraphQLError("Problem getting access token")
+        return None
 
 
     def __unsubscribe_from_topic(self):
@@ -188,7 +187,7 @@ class HeraAdapter(APIAdapter):
             headers = {"Authorization": f"Bearer {access_token}"}
             response = requests.delete(url, headers=headers)  
             return response.json()
-        raise GraphQLError("Problem getting access token")
+        return None
 
 
     def __create_topic(self):
@@ -197,7 +196,7 @@ class HeraAdapter(APIAdapter):
             headers = {"Authorization": f"Bearer {access_token}"}
             response = requests.post(url, headers=headers)
             return response.json()
-        raise GraphQLError("Problem getting access token")
+        return None
     
 
     def __get_topics(self):
@@ -205,7 +204,7 @@ class HeraAdapter(APIAdapter):
             url = f"{settings.HERA_GENERAL_URL}/topics"
             headers = {"Authorization": f"Bearer {access_token}"}
             return requests.get(url, headers=headers)
-        raise GraphQLError("Problem getting access token")
+        return None
     
 
     def __delete_topic(self):
@@ -214,7 +213,7 @@ class HeraAdapter(APIAdapter):
             headers = {"Authorization": f"Bearer {access_token}"}
             response = requests.delete(url, headers=headers)
             return response.json()
-        raise GraphQLError("Problem getting access token")
+        return None
     
 
     def __publish_topic(self):
@@ -223,7 +222,7 @@ class HeraAdapter(APIAdapter):
             headers = {"Authorization": f"Bearer {access_token}"}
             response = requests.post(url, headers=headers)
             return response.json()
-        raise GraphQLError("Problem getting access token")
+        return None
     
 
 
@@ -233,4 +232,5 @@ class AnotherAdapter(APIAdapter):
 
 
 
+# ssh -L 8080:https://keycloak.lao-dev01.wcc-hera.com:80 ubuntu@gambia.bluesquare.org 
 

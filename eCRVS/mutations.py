@@ -4,9 +4,6 @@ from .views import CitizenManager
 from .adapters import HeraAdapter
 from graphene.types.generic import GenericScalar
 from graphql.error import GraphQLError
-from django.conf import settings
-from django.utils import timezone
-import logging
 
 
 
@@ -43,17 +40,17 @@ class HeraAccessToken(graphene.Mutation):
         admin_token = graphene.String(required=True)
 
     def mutate(self, info, admin_token):
+        # if admin_token != 'JHeFZZV3RLY1Zsc1ZscGtNV3h':
+        #     raise GraphQLError('Invalid admin token')
         try:
-            if admin_token != 'zVjBVeFdHRkhhRmROTWxKMVYxUkplRll5U25SU2JHeFZZV3RLY1Zsc1ZscGtNV3h':
-                raise GraphQLError('Invalid admin token')
-            
-            hera = HeraAdapter(operation='get_info')
+            hera = HeraAdapter(operation='access_token')
             token = hera.get_data()
+            print(admin_token)
         except Exception as e:
             raise GraphQLError('Error fetching access token') from e
         return HeraAccessToken(token=token)
     
-    
+
 
 class CitizenMutations(graphene.ObjectType):
     create_citizen = CreateCitizen.Field()
