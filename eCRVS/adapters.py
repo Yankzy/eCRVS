@@ -54,7 +54,7 @@ class HeraAdapter(APIAdapter):
         # make it thread safe
         with self.lock:
             try:
-                url = "http://localhost:8080/realms/Hera/protocol/openid-connect/token"
+                url = settings.HERA_TOKEN_URL
                 headers = {'Content-Type': 'application/x-www-form-urlencoded'}
                 data = {'client_id': 'hera-m2m','client_secret': 'DYdFBrNP0PsD5Z6Ng8lUMddAGbvOv5ow', 'grant_type': 'client_credentials'}
 
