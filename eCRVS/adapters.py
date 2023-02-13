@@ -90,7 +90,7 @@ class HeraAdapter(APIAdapter):
                 with open("access_token.json", "w") as file:
                     json.dump(token, file)
 
-                return token
+                return token['access_token']
             except Exception as e:
                 import traceback
                 traceback.print_exc()
@@ -105,19 +105,6 @@ class HeraAdapter(APIAdapter):
             response = requests.get(url, headers=headers, params=querystring)
             return response.json()
         return None
-        # return {
-        #     "topicName": "LifeEventTopic",
-        #     "businessIdentifier": "BR0000000037",
-        #     "context": "BIRTH_REGISTRATION_CREATED",
-        #     "eventDateTime": "2022-11-21T15:15:55.246067",
-        #     "nin": "9999999999",
-        #     "uin": "8888888888888",
-        #     "firstName": "John",
-        #     "lastName": "Doe",
-        #     "dob": "1990-11-21",
-        #     "placeOfBirth": "Kampala",
-        #     "certificateNumber": "123456789",
-        # }
 
     
 
