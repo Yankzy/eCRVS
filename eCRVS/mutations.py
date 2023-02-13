@@ -52,7 +52,7 @@ class HeraInterface(graphene.Mutation):
         * delete_topic,
         * publish_topic,
     
-        If calling all of these operations, you need to pass the operation name as an argument and nin (except for access_token).
+        Calling any of these operations, you need to pass the operation name as an argument and nin (except for access_token).
     """
     token = graphene.Field(lambda: GenericScalar)
 

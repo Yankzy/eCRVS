@@ -110,6 +110,7 @@ __pypackages__/
 # Environments
 .env
 # .envs
+access_token.json
 .venv
 env/
 venv/
