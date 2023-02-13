@@ -74,4 +74,4 @@ class HeraInterface(graphene.Mutation):
 class CitizenMutations(graphene.ObjectType):
     create_citizen = CreateCitizen.Field()
     delete_citizen = DeleteCitizen.Field()
-    hera_access_token = HeraInterface.Field()
+    hera_interface = HeraInterface.Field()
