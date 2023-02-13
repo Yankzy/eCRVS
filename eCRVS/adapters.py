@@ -71,7 +71,9 @@ class HeraAdapter(APIAdapter):
                 if ( 
                     TOKEN 
                     and TOKEN.get('expiry_time', None) is not None
-                    and datetime.strptime(TOKEN['expiry_time'], '%Y-%m-%d %H:%M:%S.%f') > NOW
+                    and timezone.make_aware(datetime.strptime(TOKEN['expiry_time'], '%Y-%m-%d %H:%M:%S.%f'),\
+                                             timezone.get_current_timezone()) > NOW
+                    # and datetime.strptime(TOKEN['expiry_time'], '%Y-%m-%d %H:%M:%S.%f') > NOW
                 ):
                     return TOKEN['access_token']
 
@@ -96,27 +98,26 @@ class HeraAdapter(APIAdapter):
 
 
     def __get_one_person(self):
-        # if access_token := self.__access_token():
-        #     url = f"{settings.HERA_GENERAL_URL}/persons/{self.nin}"
-        #     querystring = {"attributeNames": ["firstName", "lastName", "dob", "placeOfBirth", "certificateNumber"]}
-        #     headers = {"Authorization": f"Bearer {access_token}"}
-        #     response = requests.get(url, headers=headers, params=querystring)
-        #     return response.json()
-        # return None
-        # getattr(self.manager, self.callback)
-        return {
-            "topicName": "LifeEventTopic",
-            "businessIdentifier": "BR0000000037",
-            "context": "BIRTH_REGISTRATION_CREATED",
-            "eventDateTime": "2022-11-21T15:15:55.246067",
-            "nin": "9999999999",
-            "uin": "8888888888888",
-            "firstName": "John",
-            "lastName": "Doe",
-            "dob": "1990-11-21",
-            "placeOfBirth": "Kampala",
-            "certificateNumber": "123456789",
-        }
+        if access_token := self.__access_token():
+            url = f"{settings.HERA_GENERAL_URL}/persons/{self.nin}"
+            querystring = {"attributeNames": ["firstName", "lastName", "dob", "placeOfBirth", "certificateNumber"]}
+            headers = {"Authorization": f"Bearer {access_token}"}
+            response = requests.get(url, headers=headers, params=querystring)
+            return response.json()
+        return None
+        # return {
+        #     "topicName": "LifeEventTopic",
+        #     "businessIdentifier": "BR0000000037",
+        #     "context": "BIRTH_REGISTRATION_CREATED",
+        #     "eventDateTime": "2022-11-21T15:15:55.246067",
+        #     "nin": "9999999999",
+        #     "uin": "8888888888888",
+        #     "firstName": "John",
+        #     "lastName": "Doe",
+        #     "dob": "1990-11-21",
+        #     "placeOfBirth": "Kampala",
+        #     "certificateNumber": "123456789",
+        # }
 
     
 
