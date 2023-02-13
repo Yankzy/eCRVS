@@ -40,7 +40,7 @@ class HeraInterface(graphene.Mutation):
         operation = graphene.String(required=True)
 
     def mutate(self, info, operation):
-        if operation:
+        if not operation:
             raise GraphQLError('Operation string is required')
         try:
             token = HeraAdapter(operation='access_token').get_data()
