@@ -8,6 +8,7 @@ from datetime import datetime
 import threading
 from graphql.error import GraphQLError
 import json
+import os
 
 
 
@@ -58,9 +59,11 @@ class HeraAdapter(APIAdapter):
                 headers = {'Content-Type': 'application/x-www-form-urlencoded'}
                 data = {'client_id': 'hera-m2m','client_secret': 'DYdFBrNP0PsD5Z6Ng8lUMddAGbvOv5ow', 'grant_type': 'client_credentials'}
 
-                # read the access token from a file
-                with open("access_token.json", "r") as file:
-                    TOKEN = json.load(file)
+                TOKEN = None
+                if os.path.exists("access_token.json"):
+                    # read the access token from a file
+                    with open("access_token.json", "r") as file:
+                        TOKEN = json.load(file)
 
 
                 # check if token is valid
@@ -78,7 +81,6 @@ class HeraAdapter(APIAdapter):
                     raise GraphQLError(f"Error: {response.status_code}")
                 
                 token = response.json()
-                print(token)
                 expiry_time = NOW + timezone.timedelta(seconds=token['expires_in'])
                 token['expiry_time'] = expiry_time.strftime('%Y-%m-%d %H:%M:%S.%f')
 
