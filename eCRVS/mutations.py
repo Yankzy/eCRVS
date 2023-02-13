@@ -33,26 +33,24 @@ class DeleteCitizen(graphene.Mutation):
         return DeleteCitizen(citizen=citizen)
 
 
-class HeraAccessToken(graphene.Mutation):
+class HeraInterface(graphene.Mutation):
     token = graphene.Field(lambda: GenericScalar)
 
     class Arguments:
-        admin_token = graphene.String(required=True)
+        operation = graphene.String(required=True)
 
-    def mutate(self, info, admin_token):
-        # if admin_token != 'JHeFZZV3RLY1Zsc1ZscGtNV3h':
-        #     raise GraphQLError('Invalid admin token')
+    def mutate(self, info, operation):
+        if operation:
+            raise GraphQLError('Operation string is required')
         try:
-            hera = HeraAdapter(operation='access_token')
-            token = hera.get_data()
-            print(admin_token)
+            token = HeraAdapter(operation='access_token').get_data()
         except Exception as e:
-            raise GraphQLError('Error fetching access token') from e
-        return HeraAccessToken(token=token)
+            token = e
+        return HeraInterface(token=token)
     
 
 
 class CitizenMutations(graphene.ObjectType):
     create_citizen = CreateCitizen.Field()
     delete_citizen = DeleteCitizen.Field()
-    hera_access_token = HeraAccessToken.Field()
+    hera_access_token = HeraInterface.Field()

@@ -59,18 +59,18 @@ class HeraAdapter(APIAdapter):
                 data = {'client_id': 'hera-m2m','client_secret': 'DYdFBrNP0PsD5Z6Ng8lUMddAGbvOv5ow', 'grant_type': 'client_credentials'}
 
                 # read the access token from a file
-                # with open("access_token.json", "r") as file:
-                #     TOKEN = json.load(file)
+                with open("access_token.json", "r") as file:
+                    TOKEN = json.load(file)
 
 
                 # check if token is valid
                 NOW = timezone.now()
-                # if ( 
-                #     TOKEN 
-                #     and TOKEN.get('expiry_time', None) is not None
-                #     and datetime.strptime(TOKEN['expiry_time'], '%Y-%m-%d %H:%M:%S.%f') > NOW
-                # ):
-                #     return TOKEN['access_token']
+                if ( 
+                    TOKEN 
+                    and TOKEN.get('expiry_time', None) is not None
+                    and datetime.strptime(TOKEN['expiry_time'], '%Y-%m-%d %H:%M:%S.%f') > NOW
+                ):
+                    return TOKEN['access_token']
 
                 
                 response = requests.post(url, headers=headers, data=data)
@@ -79,12 +79,12 @@ class HeraAdapter(APIAdapter):
                 
                 token = response.json()
                 print(token)
-                # expiry_time = NOW + timezone.timedelta(seconds=token['expires_in'])
-                # token['expiry_time'] = expiry_time.strftime('%Y-%m-%d %H:%M:%S.%f')
+                expiry_time = NOW + timezone.timedelta(seconds=token['expires_in'])
+                token['expiry_time'] = expiry_time.strftime('%Y-%m-%d %H:%M:%S.%f')
 
                 # write the access token to a file
-                # with open("access_token.json", "w") as file:
-                #     json.dump(token, file)
+                with open("access_token.json", "w") as file:
+                    json.dump(token, file)
 
                 return token
             except Exception as e:
